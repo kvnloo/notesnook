@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { Extension } from "@tiptap/core";
+import { Extension, type Editor } from "@tiptap/core";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
   EditorState,
@@ -356,38 +356,31 @@ export const SearchReplace = Extension.create<SearchOptions, SearchStorage>({
   },
 
   addKeyboardShortcuts() {
+    const moveToNextResult = ({ editor }: { editor: Editor }) =>
+      editor.commands.moveToNextResult();
+    const moveToPreviousResult = ({ editor }: { editor: Editor }) =>
+      editor.commands.moveToPreviousResult();
+
     return {
       [tiptapKeys.openSearch.keys]: ({ editor }) =>
         editor.commands.startSearch(),
       [tiptapKeys.openSearchAndReplace.keys]: ({ editor }) =>
         editor.commands.startSearch(true),
-      ...(Array.isArray(tiptapKeys.findNext.keys)
-        ? Object.fromEntries(
-            tiptapKeys.findNext.keys.map((key) => [
-              key,
-              ({ editor }: { editor: typeof this.editor }) =>
-                editor.commands.moveToNextResult()
-            ])
-          )
-        : {
-            [tiptapKeys.findNext.keys]: ({ editor }) =>
-              editor.commands.moveToNextResult()
-          }),
-      ...(Array.isArray(tiptapKeys.findPrevious.keys)
-        ? Object.fromEntries(
-            tiptapKeys.findPrevious.keys.map((key) => [
-              key,
-              ({ editor }: { editor: typeof this.editor }) =>
-                editor.commands.moveToPreviousResult()
-            ])
-          )
-        : {
-            [tiptapKeys.findPrevious.keys]: ({ editor }) =>
-              editor.commands.moveToPreviousResult()
-          }),
+      ...Object.fromEntries(
+        (Array.isArray(tiptapKeys.findNext.keys)
+          ? tiptapKeys.findNext.keys
+          : [tiptapKeys.findNext.keys]
+        ).map((key) => [key, moveToNextResult])
+      ),
+      ...Object.fromEntries(
+        (Array.isArray(tiptapKeys.findPrevious.keys)
+          ? tiptapKeys.findPrevious.keys
+          : [tiptapKeys.findPrevious.keys]
+        ).map((key) => [key, moveToPreviousResult])
+      ),
       Escape: ({ editor }) => editor.commands.endSearch()
     };
-  },
+  }
 
   addProseMirrorPlugins() {
     const key = new PluginKey("searchreplace");
