@@ -361,6 +361,30 @@ export const SearchReplace = Extension.create<SearchOptions, SearchStorage>({
         editor.commands.startSearch(),
       [tiptapKeys.openSearchAndReplace.keys]: ({ editor }) =>
         editor.commands.startSearch(true),
+      ...(Array.isArray(tiptapKeys.findNext.keys)
+        ? Object.fromEntries(
+            tiptapKeys.findNext.keys.map((key) => [
+              key,
+              ({ editor }: { editor: typeof this.editor }) =>
+                editor.commands.moveToNextResult()
+            ])
+          )
+        : {
+            [tiptapKeys.findNext.keys]: ({ editor }) =>
+              editor.commands.moveToNextResult()
+          }),
+      ...(Array.isArray(tiptapKeys.findPrevious.keys)
+        ? Object.fromEntries(
+            tiptapKeys.findPrevious.keys.map((key) => [
+              key,
+              ({ editor }: { editor: typeof this.editor }) =>
+                editor.commands.moveToPreviousResult()
+            ])
+          )
+        : {
+            [tiptapKeys.findPrevious.keys]: ({ editor }) =>
+              editor.commands.moveToPreviousResult()
+          }),
       Escape: ({ editor }) => editor.commands.endSearch()
     };
   },
