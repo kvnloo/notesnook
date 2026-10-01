@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 interface Hotkeys {
   keys: (isDesktop: boolean) => string[];
+  macKeys?: (isDesktop: boolean) => string[];
   description: string;
   category: Category;
   type: "hotkeys";
@@ -44,12 +45,20 @@ export const hotkeys = {
       web: ["ctrl+alt+right", "ctrl+alt+shift+right"],
       desktop: ["ctrl+tab"]
     }),
+    macKeys: normalizeKeys({
+      web: ["ctrl+alt+right", "ctrl+alt+shift+right"],
+      desktop: ["ctrl+tab"]
+    }),
     description: "Next tab",
     category: "Navigation",
     type: "hotkeys"
   },
   previousTab: {
     keys: normalizeKeys({
+      web: ["ctrl+alt+left", "ctrl+alt+shift+left"],
+      desktop: ["ctrl+shift+tab"]
+    }),
+    macKeys: normalizeKeys({
       web: ["ctrl+alt+left", "ctrl+alt+shift+left"],
       desktop: ["ctrl+shift+tab"]
     }),
@@ -451,8 +460,9 @@ export function getKeybinding(
 ) {
   const keybinding = keybindings[key];
   if (keybinding.type === "hotkeys") {
-    const hotkeys = keybinding.keys(isDesktop);
-    return isMac ? hotkeys.map(macify) : hotkeys;
+    const macKeys = "macKeys" in keybinding ? keybinding.macKeys : undefined;
+    const hotkeys = isMac && macKeys ? macKeys(isDesktop) : keybinding.keys(isDesktop);
+    return isMac && !macKeys ? hotkeys.map(macify) : hotkeys;
   }
   const tiptapKeys = Array.isArray(keybinding.keys)
     ? keybinding.keys
