@@ -341,6 +341,18 @@ export const tiptapKeys = {
     category: "Editor",
     type: "tiptap"
   },
+  findNext: {
+    keys: ["Mod-g", "F3"],
+    description: "Find next",
+    category: "Editor",
+    type: "tiptap"
+  },
+  findPrevious: {
+    keys: ["Mod-Shift-g", "Shift-F3"],
+    description: "Find previous",
+    category: "Editor",
+    type: "tiptap"
+  },
   toggleStrike: {
     keys: "Mod-Shift-S",
     description: "Toggle strike",
